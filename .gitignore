@@ -4,3 +4,13 @@ game/.import/
 game/export/
 *.tmp
 *.translation
+game/addons/phantom_camera/examples/
+game/addons/terrain_3d/bin/libterrain.android.*
+game/addons/terrain_3d/bin/libterrain.ios.*
+game/addons/terrain_3d/bin/libterrain.linux.*
+game/addons/terrain_3d/bin/libterrain.web.*
+game/addons/terrain_3d/bin/libterrain.windows.*
+game/assets/models/*.glb
+game/assets/models/*.gltf
+game/assets/hdri/*.hdr
+game/assets/textures/terrain/*.jpg

@@ -10,6 +10,10 @@ config/icon="res://assets/placeholder/icon.svg"
 window/size/viewport_width=1280
 window/size/viewport_height=720
 
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/phantom_camera/plugin.cfg", "res://addons/beehave/plugin.cfg", "res://addons/dialogue_manager/plugin.cfg", "res://addons/proton_scatter/plugin.cfg", "res://addons/terrain_3d/plugin.cfg", "res://addons/jeheno_third_person_controller/plugin.cfg")
+
 [rendering]
 renderer/rendering_method="forward_plus"
 environment/defaults/default_clear_color=Color(0.03, 0.035, 0.045, 1)
