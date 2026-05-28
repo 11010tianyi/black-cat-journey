@@ -1,0 +1,26 @@
+[
+  {
+    "id": "first_meeting",
+    "speaker": "白猫",
+    "text": "风不一定知道方向，但它知道你还在走。",
+    "mood": "healing"
+  },
+  {
+    "id": "companions",
+    "speaker": "白猫",
+    "text": "有些同行只是短短一段，也足够把夜路照亮一点。",
+    "mood": "healing"
+  },
+  {
+    "id": "cold_joke",
+    "speaker": "白猫",
+    "text": "我刚才悟到一个真理：毛太长，风也会堵车。",
+    "mood": "dry_joke"
+  },
+  {
+    "id": "farewell",
+    "speaker": "白猫",
+    "text": "别急着把分别叫作失去。猫只是把脚印留在了不同的风里。",
+    "mood": "healing"
+  }
+]

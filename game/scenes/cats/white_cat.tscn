@@ -1,0 +1,41 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://scripts/white_cat.gd" id="1_white"]
+[ext_resource type="Material" path="res://materials/white_longhair.tres" id="2_white"]
+[ext_resource type="Material" path="res://materials/eye_yellow.tres" id="3_eye"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_body"]
+radius = 0.3
+height = 1.2
+
+[sub_resource type="SphereMesh" id="SphereMesh_head"]
+radius = 0.28
+height = 0.56
+
+[sub_resource type="SphereMesh" id="SphereMesh_eye"]
+radius = 0.045
+height = 0.09
+
+[node name="WhiteCat" type="Node3D"]
+script = ExtResource("1_white")
+
+[node name="Body" type="MeshInstance3D" parent="."]
+position = Vector3(0, 0.4, 0.06)
+rotation = Vector3(1.5708, 0, 0)
+mesh = SubResource("CapsuleMesh_body")
+surface_material_override/0 = ExtResource("2_white")
+
+[node name="Head" type="MeshInstance3D" parent="."]
+position = Vector3(0, 0.58, -0.62)
+mesh = SubResource("SphereMesh_head")
+surface_material_override/0 = ExtResource("2_white")
+
+[node name="LeftEye" type="MeshInstance3D" parent="."]
+position = Vector3(-0.09, 0.62, -0.86)
+mesh = SubResource("SphereMesh_eye")
+surface_material_override/0 = ExtResource("3_eye")
+
+[node name="RightEye" type="MeshInstance3D" parent="."]
+position = Vector3(0.09, 0.62, -0.86)
+mesh = SubResource("SphereMesh_eye")
+surface_material_override/0 = ExtResource("3_eye")

@@ -1,0 +1,62 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://scripts/player_controller.gd" id="1_player"]
+[ext_resource type="Material" path="res://materials/player_black.tres" id="2_black"]
+[ext_resource type="Material" path="res://materials/eye_yellow.tres" id="3_eye"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_player"]
+radius = 0.34
+height = 1.1
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_body"]
+radius = 0.28
+height = 1.35
+
+[sub_resource type="SphereMesh" id="SphereMesh_head"]
+radius = 0.28
+height = 0.56
+
+[sub_resource type="SphereMesh" id="SphereMesh_eye"]
+radius = 0.045
+height = 0.09
+
+[node name="PlayerCat" type="CharacterBody3D"]
+script = ExtResource("1_player")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+position = Vector3(0, 0.55, 0)
+shape = SubResource("CapsuleShape3D_player")
+
+[node name="VisualRoot" type="Node3D" parent="."]
+
+[node name="Body" type="MeshInstance3D" parent="VisualRoot"]
+position = Vector3(0, 0.42, 0.08)
+rotation = Vector3(1.5708, 0, 0)
+mesh = SubResource("CapsuleMesh_body")
+surface_material_override/0 = ExtResource("2_black")
+
+[node name="Head" type="MeshInstance3D" parent="VisualRoot"]
+position = Vector3(0, 0.58, -0.64)
+mesh = SubResource("SphereMesh_head")
+surface_material_override/0 = ExtResource("2_black")
+
+[node name="LeftEye" type="MeshInstance3D" parent="VisualRoot"]
+position = Vector3(-0.09, 0.62, -0.88)
+mesh = SubResource("SphereMesh_eye")
+surface_material_override/0 = ExtResource("3_eye")
+
+[node name="RightEye" type="MeshInstance3D" parent="VisualRoot"]
+position = Vector3(0.09, 0.62, -0.88)
+mesh = SubResource("SphereMesh_eye")
+surface_material_override/0 = ExtResource("3_eye")
+
+[node name="CameraPivot" type="Node3D" parent="."]
+position = Vector3(0, 0.8, 0)
+
+[node name="SpringArm3D" type="SpringArm3D" parent="CameraPivot"]
+spring_length = 5.0
+margin = 0.15
+
+[node name="Camera3D" type="Camera3D" parent="CameraPivot/SpringArm3D"]
+current = true
+fov = 62.0

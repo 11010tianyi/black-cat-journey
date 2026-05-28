@@ -1,0 +1,135 @@
+[gd_scene load_steps=19 format=3]
+
+[ext_resource type="Script" path="res://scripts/world_event_director.gd" id="1_world"]
+[ext_resource type="Script" path="res://scripts/companion_manager.gd" id="2_companion"]
+[ext_resource type="PackedScene" path="res://scenes/player_cat.tscn" id="3_player"]
+[ext_resource type="PackedScene" path="res://scenes/cats/ai_cat.tscn" id="4_ai_cat"]
+[ext_resource type="PackedScene" path="res://scenes/cats/white_cat.tscn" id="5_white_cat"]
+[ext_resource type="PackedScene" path="res://scenes/dialogue_layer.tscn" id="6_dialogue"]
+[ext_resource type="Material" path="res://materials/grassland.tres" id="7_grass"]
+[ext_resource type="Material" path="res://materials/ruin_stone.tres" id="8_stone"]
+[ext_resource type="Material" path="res://materials/snow_moon.tres" id="9_snow"]
+[ext_resource type="Material" path="res://materials/calico.tres" id="10_calico"]
+[ext_resource type="Material" path="res://materials/tabby.tres" id="11_tabby"]
+[ext_resource type="Material" path="res://materials/gray.tres" id="12_gray"]
+
+[sub_resource type="Environment" id="Environment_moon"]
+background_mode = 1
+background_color = Color(0.025, 0.032, 0.048, 1)
+ambient_light_source = 3
+ambient_light_color = Color(0.55, 0.62, 0.75, 1)
+ambient_light_energy = 0.45
+fog_enabled = true
+fog_light_color = Color(0.55, 0.62, 0.7, 1)
+fog_density = 0.015
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_zone"]
+size = Vector2(22, 22)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_zone"]
+size = Vector3(22, 0.2, 22)
+
+[sub_resource type="BoxMesh" id="BoxMesh_ruin"]
+size = Vector3(1.2, 2.8, 1.2)
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_wind"]
+direction = Vector3(1, 0.05, 0.15)
+spread = 7.0
+initial_velocity_min = 2.0
+initial_velocity_max = 5.0
+gravity = Vector3(0, 0, 0)
+scale_min = 0.04
+scale_max = 0.12
+color = Color(0.85, 0.9, 1, 0.38)
+
+[node name="Main" type="Node3D"]
+script = ExtResource("1_world")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_moon")
+
+[node name="MoonLight" type="DirectionalLight3D" parent="."]
+rotation = Vector3(-0.85, -0.35, 0.15)
+light_energy = 1.2
+shadow_enabled = true
+
+[node name="CompanionManager" type="Node" parent="."]
+script = ExtResource("2_companion")
+
+[node name="GrasslandZone" type="StaticBody3D" parent="."]
+position = Vector3(0, -0.05, 0)
+
+[node name="Mesh" type="MeshInstance3D" parent="GrasslandZone"]
+mesh = SubResource("PlaneMesh_zone")
+surface_material_override/0 = ExtResource("7_grass")
+
+[node name="Collision" type="CollisionShape3D" parent="GrasslandZone"]
+position = Vector3(0, -0.08, 0)
+shape = SubResource("BoxShape3D_zone")
+
+[node name="RuinZone" type="StaticBody3D" parent="."]
+position = Vector3(0, -0.04, -20)
+
+[node name="Mesh" type="MeshInstance3D" parent="RuinZone"]
+mesh = SubResource("PlaneMesh_zone")
+surface_material_override/0 = ExtResource("8_stone")
+
+[node name="Collision" type="CollisionShape3D" parent="RuinZone"]
+position = Vector3(0, -0.08, 0)
+shape = SubResource("BoxShape3D_zone")
+
+[node name="SnowMoonZone" type="StaticBody3D" parent="."]
+position = Vector3(0, -0.03, -40)
+
+[node name="Mesh" type="MeshInstance3D" parent="SnowMoonZone"]
+mesh = SubResource("PlaneMesh_zone")
+surface_material_override/0 = ExtResource("9_snow")
+
+[node name="Collision" type="CollisionShape3D" parent="SnowMoonZone"]
+position = Vector3(0, -0.08, 0)
+shape = SubResource("BoxShape3D_zone")
+
+[node name="RuinPillarA" type="MeshInstance3D" parent="."]
+position = Vector3(-4.5, 1.35, -17)
+rotation = Vector3(0.08, 0.2, -0.06)
+mesh = SubResource("BoxMesh_ruin")
+surface_material_override/0 = ExtResource("8_stone")
+
+[node name="RuinPillarB" type="MeshInstance3D" parent="."]
+position = Vector3(5.0, 1.1, -23)
+rotation = Vector3(-0.12, -0.25, 0.09)
+scale = Vector3(0.8, 0.8, 0.8)
+mesh = SubResource("BoxMesh_ruin")
+surface_material_override/0 = ExtResource("8_stone")
+
+[node name="WindParticles" type="GPUParticles3D" parent="."]
+position = Vector3(-9, 1.4, -16)
+amount = 180
+lifetime = 5.0
+visibility_aabb = AABB(-15, -3, -35, 40, 8, 60)
+process_material = SubResource("ParticleProcessMaterial_wind")
+
+[node name="PlayerCat" parent="." instance=ExtResource("3_player")]
+position = Vector3(0, 0.1, 6)
+
+[node name="TabbyCat" parent="." instance=ExtResource("4_ai_cat")]
+position = Vector3(-3.2, 0.1, -3)
+cat_name = "狸花猫"
+body_material = ExtResource("11_tabby")
+
+[node name="CalicoCat" parent="." instance=ExtResource("4_ai_cat")]
+position = Vector3(3.4, 0.1, -11)
+cat_name = "三花猫"
+body_material = ExtResource("10_calico")
+leave_after = 24.0
+
+[node name="GrayCat" parent="." instance=ExtResource("4_ai_cat")]
+position = Vector3(-4.0, 0.1, -26)
+cat_name = "灰猫"
+body_material = ExtResource("12_gray")
+leave_after = 42.0
+
+[node name="WhiteCat" parent="." instance=ExtResource("5_white_cat")]
+position = Vector3(1.6, 0.1, -7.5)
+
+[node name="DialogueLayer" parent="." instance=ExtResource("6_dialogue")]

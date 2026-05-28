@@ -1,0 +1,48 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://scripts/cat_ai_controller.gd" id="1_ai"]
+[ext_resource type="Material" path="res://materials/tabby.tres" id="2_default"]
+[ext_resource type="Material" path="res://materials/eye_yellow.tres" id="3_eye"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_cat"]
+radius = 0.28
+height = 0.95
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_body"]
+radius = 0.23
+height = 1.05
+
+[sub_resource type="SphereMesh" id="SphereMesh_head"]
+radius = 0.23
+height = 0.46
+
+[node name="AICat" type="CharacterBody3D"]
+script = ExtResource("1_ai")
+body_material = ExtResource("2_default")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+position = Vector3(0, 0.45, 0)
+shape = SubResource("CapsuleShape3D_cat")
+
+[node name="Body" type="MeshInstance3D" parent="."]
+position = Vector3(0, 0.36, 0.06)
+rotation = Vector3(1.5708, 0, 0)
+mesh = SubResource("CapsuleMesh_body")
+surface_material_override/0 = ExtResource("2_default")
+
+[node name="Head" type="MeshInstance3D" parent="."]
+position = Vector3(0, 0.5, -0.52)
+mesh = SubResource("SphereMesh_head")
+surface_material_override/0 = ExtResource("2_default")
+
+[node name="LeftEye" type="MeshInstance3D" parent="."]
+position = Vector3(-0.075, 0.53, -0.72)
+mesh = SubResource("SphereMesh_head")
+scale = Vector3(0.14, 0.14, 0.14)
+surface_material_override/0 = ExtResource("3_eye")
+
+[node name="RightEye" type="MeshInstance3D" parent="."]
+position = Vector3(0.075, 0.53, -0.72)
+mesh = SubResource("SphereMesh_head")
+scale = Vector3(0.14, 0.14, 0.14)
+surface_material_override/0 = ExtResource("3_eye")

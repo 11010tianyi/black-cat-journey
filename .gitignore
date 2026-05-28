@@ -1,0 +1,6 @@
+.DS_Store
+game/.godot/
+game/.import/
+game/export/
+*.tmp
+*.translation
