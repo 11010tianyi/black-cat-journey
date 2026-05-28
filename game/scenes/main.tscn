@@ -1,4 +1,4 @@
-[gd_scene load_steps=19 format=3]
+[gd_scene load_steps=14 format=3]
 
 [ext_resource type="Script" path="res://scripts/world_event_director.gd" id="1_world"]
 [ext_resource type="Script" path="res://scripts/companion_manager.gd" id="2_companion"]
@@ -22,15 +22,6 @@ ambient_light_energy = 0.45
 fog_enabled = true
 fog_light_color = Color(0.55, 0.62, 0.7, 1)
 fog_density = 0.015
-
-[sub_resource type="PlaneMesh" id="PlaneMesh_zone"]
-size = Vector2(22, 22)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_zone"]
-size = Vector3(22, 0.2, 22)
-
-[sub_resource type="BoxMesh" id="BoxMesh_ruin"]
-size = Vector3(1.2, 2.8, 1.2)
 
 [sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_wind"]
 direction = Vector3(1, 0.05, 0.15)
@@ -56,51 +47,9 @@ shadow_enabled = true
 [node name="CompanionManager" type="Node" parent="."]
 script = ExtResource("2_companion")
 
-[node name="GrasslandZone" type="StaticBody3D" parent="."]
-position = Vector3(0, -0.05, 0)
+[node name="Terrain3D" type="Node3D" parent="." node_type="Terrain3D"]
 
-[node name="Mesh" type="MeshInstance3D" parent="GrasslandZone"]
-mesh = SubResource("PlaneMesh_zone")
-surface_material_override/0 = ExtResource("7_grass")
-
-[node name="Collision" type="CollisionShape3D" parent="GrasslandZone"]
-position = Vector3(0, -0.08, 0)
-shape = SubResource("BoxShape3D_zone")
-
-[node name="RuinZone" type="StaticBody3D" parent="."]
-position = Vector3(0, -0.04, -20)
-
-[node name="Mesh" type="MeshInstance3D" parent="RuinZone"]
-mesh = SubResource("PlaneMesh_zone")
-surface_material_override/0 = ExtResource("8_stone")
-
-[node name="Collision" type="CollisionShape3D" parent="RuinZone"]
-position = Vector3(0, -0.08, 0)
-shape = SubResource("BoxShape3D_zone")
-
-[node name="SnowMoonZone" type="StaticBody3D" parent="."]
-position = Vector3(0, -0.03, -40)
-
-[node name="Mesh" type="MeshInstance3D" parent="SnowMoonZone"]
-mesh = SubResource("PlaneMesh_zone")
-surface_material_override/0 = ExtResource("9_snow")
-
-[node name="Collision" type="CollisionShape3D" parent="SnowMoonZone"]
-position = Vector3(0, -0.08, 0)
-shape = SubResource("BoxShape3D_zone")
-
-[node name="RuinPillarA" type="MeshInstance3D" parent="."]
-position = Vector3(-4.5, 1.35, -17)
-rotation = Vector3(0.08, 0.2, -0.06)
-mesh = SubResource("BoxMesh_ruin")
-surface_material_override/0 = ExtResource("8_stone")
-
-[node name="RuinPillarB" type="MeshInstance3D" parent="."]
-position = Vector3(5.0, 1.1, -23)
-rotation = Vector3(-0.12, -0.25, 0.09)
-scale = Vector3(0.8, 0.8, 0.8)
-mesh = SubResource("BoxMesh_ruin")
-surface_material_override/0 = ExtResource("8_stone")
+[node name="NavigationRegion3D" type="NavigationRegion3D" parent="."]
 
 [node name="WindParticles" type="GPUParticles3D" parent="."]
 position = Vector3(-9, 1.4, -16)
