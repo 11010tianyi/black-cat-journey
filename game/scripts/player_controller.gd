@@ -12,6 +12,7 @@ var _gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity", 
 var _meow_timer := 0.0
 
 @onready var _camera_pivot: Node3D = $CameraPivot
+@onready var _visual_root: Node3D = $VisualRoot
 
 func _ready() -> void:
 	add_to_group("player")
@@ -54,7 +55,7 @@ func _physics_process(delta: float) -> void:
 		velocity.x = direction.x * speed
 		velocity.z = direction.z * speed
 		var target_yaw := atan2(-direction.x, -direction.z)
-		rotation.y = lerp_angle(rotation.y, target_yaw, turn_speed * delta)
+		_visual_root.rotation.y = lerp_angle(_visual_root.rotation.y, target_yaw, turn_speed * delta)
 	else:
 		velocity.x = move_toward(velocity.x, 0.0, speed * 5.0 * delta)
 		velocity.z = move_toward(velocity.z, 0.0, speed * 5.0 * delta)
