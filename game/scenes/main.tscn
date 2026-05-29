@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3]
+[gd_scene load_steps=19 format=3]
 
 [ext_resource type="Script" path="res://scripts/world_event_director.gd" id="1_world"]
 [ext_resource type="Script" path="res://scripts/companion_manager.gd" id="2_companion"]
@@ -33,6 +33,26 @@ scale_min = 0.04
 scale_max = 0.12
 color = Color(0.85, 0.9, 1, 0.38)
 
+[sub_resource type="PlaneMesh" id="PlaneMesh_grass"]
+size = Vector2(30, 20)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_grass"]
+size = Vector3(30, 0.4, 20)
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_ruin"]
+size = Vector2(20, 18)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ruin"]
+size = Vector3(20, 0.4, 18)
+
+[sub_resource type="BoxMesh" id="BoxMesh_pillar"]
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_snow"]
+size = Vector2(22, 16)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_snow"]
+size = Vector3(22, 0.4, 16)
+
 [node name="Main" type="Node3D"]
 script = ExtResource("1_world")
 
@@ -47,7 +67,50 @@ shadow_enabled = true
 [node name="CompanionManager" type="Node" parent="."]
 script = ExtResource("2_companion")
 
-[node name="Terrain3D" type="Node3D" parent="." node_type="Terrain3D"]
+[node name="GrasslandZone" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.2, -2)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GrasslandZone"]
+mesh = SubResource("PlaneMesh_grass")
+surface_material_override/0 = ExtResource("7_grass")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GrasslandZone"]
+shape = SubResource("BoxShape3D_grass")
+
+[node name="RuinZone" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.2, -18)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="RuinZone"]
+mesh = SubResource("PlaneMesh_ruin")
+surface_material_override/0 = ExtResource("8_stone")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="RuinZone"]
+shape = SubResource("BoxShape3D_ruin")
+
+[node name="RuinPillar1" type="MeshInstance3D" parent="RuinZone"]
+transform = Transform3D(0.6, 0, 0, 0, 3, 0, 0, 0, 0.6, -6, 1.5, -4)
+mesh = SubResource("BoxMesh_pillar")
+surface_material_override/0 = ExtResource("8_stone")
+
+[node name="RuinPillar2" type="MeshInstance3D" parent="RuinZone"]
+transform = Transform3D(0.5, 0, 0, 0, 2.4, 0, 0, 0, 0.5, 5, 1.2, -6)
+mesh = SubResource("BoxMesh_pillar")
+surface_material_override/0 = ExtResource("8_stone")
+
+[node name="RuinPillar3" type="MeshInstance3D" parent="RuinZone"]
+transform = Transform3D(0.4, 0, 0, 0, 1.6, 0, 0, 0, 0.4, -3, 0.8, 3)
+mesh = SubResource("BoxMesh_pillar")
+surface_material_override/0 = ExtResource("8_stone")
+
+[node name="SnowMoonZone" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.2, -34)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="SnowMoonZone"]
+mesh = SubResource("PlaneMesh_snow")
+surface_material_override/0 = ExtResource("9_snow")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="SnowMoonZone"]
+shape = SubResource("BoxShape3D_snow")
 
 [node name="NavigationRegion3D" type="NavigationRegion3D" parent="."]
 

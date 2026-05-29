@@ -20,6 +20,7 @@ var _camera_yaw := 0.0
 var _camera_pitch := 0.0
 
 @onready var _visual_root: Node3D = $VisualRoot
+@onready var _camera_pivot: Node3D = $CameraPivot
 
 func _ready() -> void:
 	add_to_group("player")
@@ -70,6 +71,9 @@ func _physics_process(delta: float) -> void:
 		velocity.z = move_toward(velocity.z, 0.0, deceleration * delta)
 		if is_on_floor():
 			state = State.IDLE
+
+	_camera_pivot.rotation.y = _camera_yaw
+	_camera_pivot.rotation.x = _camera_pitch
 
 	move_and_slide()
 
