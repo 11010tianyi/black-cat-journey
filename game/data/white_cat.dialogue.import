@@ -1,0 +1,16 @@
+[remap]
+
+importer="dialogue_manager"
+importer_version=18
+type="Resource"
+uid="uid://vb6xsbhci2ur"
+path="res://.godot/imported/white_cat.dialogue-54d8b20700df95d9a72723c9bfcce863.tres"
+
+[deps]
+
+source_file="res://data/white_cat.dialogue"
+dest_files=["res://.godot/imported/white_cat.dialogue-54d8b20700df95d9a72723c9bfcce863.tres"]
+
+[params]
+
+defaults=true

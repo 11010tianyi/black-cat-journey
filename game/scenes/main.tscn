@@ -1,4 +1,4 @@
-[gd_scene load_steps=19 format=3]
+[gd_scene load_steps=26 format=3]
 
 [ext_resource type="Script" path="res://scripts/world_event_director.gd" id="1_world"]
 [ext_resource type="Script" path="res://scripts/companion_manager.gd" id="2_companion"]
@@ -21,7 +21,7 @@ ambient_light_color = Color(0.55, 0.62, 0.75, 1)
 ambient_light_energy = 0.45
 fog_enabled = true
 fog_light_color = Color(0.55, 0.62, 0.7, 1)
-fog_density = 0.015
+fog_density = 0.0045
 
 [sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_wind"]
 direction = Vector3(1, 0.05, 0.15)
@@ -34,24 +34,47 @@ scale_max = 0.12
 color = Color(0.85, 0.9, 1, 0.38)
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_grass"]
-size = Vector2(30, 20)
+size = Vector2(18, 150)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_grass"]
-size = Vector3(30, 0.4, 20)
+size = Vector3(18, 1, 150)
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_ruin"]
-size = Vector2(20, 18)
+size = Vector2(18, 160)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_ruin"]
-size = Vector3(20, 0.4, 18)
+size = Vector3(18, 1, 160)
 
 [sub_resource type="BoxMesh" id="BoxMesh_pillar"]
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_snow"]
-size = Vector2(22, 16)
+size = Vector2(18, 170)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_snow"]
-size = Vector3(22, 0.4, 16)
+size = Vector3(18, 1, 170)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_goal"]
+size = Vector3(10, 3, 4)
+
+[sub_resource type="BoxMesh" id="BoxMesh_beacon"]
+size = Vector3(0.55, 8, 0.55)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_beacon"]
+albedo_color = Color(1, 0.84, 0.48, 1)
+emission_enabled = true
+emission = Color(1, 0.72, 0.32, 1)
+emission_energy_multiplier = 4.0
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_pad"]
+top_radius = 1.8
+bottom_radius = 1.8
+height = 0.08
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_pad"]
+albedo_color = Color(0.98, 0.86, 0.52, 1)
+emission_enabled = true
+emission = Color(1, 0.78, 0.38, 1)
+emission_energy_multiplier = 2.2
 
 [node name="Main" type="Node3D"]
 script = ExtResource("1_world")
@@ -68,80 +91,132 @@ shadow_enabled = true
 script = ExtResource("2_companion")
 
 [node name="GrasslandZone" type="StaticBody3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.2, -2)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -61)
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="GrasslandZone"]
 mesh = SubResource("PlaneMesh_grass")
 surface_material_override/0 = ExtResource("7_grass")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="GrasslandZone"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
 shape = SubResource("BoxShape3D_grass")
 
 [node name="RuinZone" type="StaticBody3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.2, -18)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -212)
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="RuinZone"]
 mesh = SubResource("PlaneMesh_ruin")
 surface_material_override/0 = ExtResource("8_stone")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="RuinZone"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
 shape = SubResource("BoxShape3D_ruin")
 
 [node name="RuinPillar1" type="MeshInstance3D" parent="RuinZone"]
-transform = Transform3D(0.6, 0, 0, 0, 3, 0, 0, 0, 0.6, -6, 1.5, -4)
+transform = Transform3D(0.6, 0, 0, 0, 3, 0, 0, 0, 0.6, -7.2, 1.5, -24)
 mesh = SubResource("BoxMesh_pillar")
 surface_material_override/0 = ExtResource("8_stone")
 
 [node name="RuinPillar2" type="MeshInstance3D" parent="RuinZone"]
-transform = Transform3D(0.5, 0, 0, 0, 2.4, 0, 0, 0, 0.5, 5, 1.2, -6)
+transform = Transform3D(0.5, 0, 0, 0, 2.4, 0, 0, 0, 0.5, 7.1, 1.2, 8)
 mesh = SubResource("BoxMesh_pillar")
 surface_material_override/0 = ExtResource("8_stone")
 
 [node name="RuinPillar3" type="MeshInstance3D" parent="RuinZone"]
-transform = Transform3D(0.4, 0, 0, 0, 1.6, 0, 0, 0, 0.4, -3, 0.8, 3)
+transform = Transform3D(0.4, 0, 0, 0, 1.6, 0, 0, 0, 0.4, -6.6, 0.8, 36)
 mesh = SubResource("BoxMesh_pillar")
 surface_material_override/0 = ExtResource("8_stone")
 
 [node name="SnowMoonZone" type="StaticBody3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.2, -34)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -373)
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="SnowMoonZone"]
 mesh = SubResource("PlaneMesh_snow")
 surface_material_override/0 = ExtResource("9_snow")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="SnowMoonZone"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
 shape = SubResource("BoxShape3D_snow")
 
 [node name="NavigationRegion3D" type="NavigationRegion3D" parent="."]
 
 [node name="WindParticles" type="GPUParticles3D" parent="."]
-position = Vector3(-9, 1.4, -16)
+position = Vector3(0, 1.6, -90)
 amount = 180
 lifetime = 5.0
-visibility_aabb = AABB(-15, -3, -35, 40, 8, 60)
+visibility_aabb = AABB(-20, -4, -420, 40, 10, 480)
 process_material = SubResource("ParticleProcessMaterial_wind")
 
+[node name="GoalBeacon" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4, -445)
+mesh = SubResource("BoxMesh_beacon")
+surface_material_override/0 = SubResource("StandardMaterial3D_beacon")
+
+[node name="GoalPad" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, -445)
+mesh = SubResource("CylinderMesh_pad")
+surface_material_override/0 = SubResource("StandardMaterial3D_pad")
+
+[node name="JourneyEnd" type="Area3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, -445)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="JourneyEnd"]
+shape = SubResource("BoxShape3D_goal")
+
 [node name="PlayerCat" parent="." instance=ExtResource("3_player")]
-position = Vector3(0, 0.1, 6)
+position = Vector3(0, 0.25, 6)
 
 [node name="TabbyCat" parent="." instance=ExtResource("4_ai_cat")]
-position = Vector3(-3.2, 0.1, -3)
+position = Vector3(-2.4, 0.25, -48)
 cat_name = "狸花猫"
 body_material = ExtResource("11_tabby")
+leave_z = -160.0
 
 [node name="CalicoCat" parent="." instance=ExtResource("4_ai_cat")]
-position = Vector3(3.4, 0.1, -11)
+position = Vector3(2.3, 0.25, -210)
 cat_name = "三花猫"
 body_material = ExtResource("10_calico")
-leave_after = 24.0
+leave_z = -320.0
 
 [node name="GrayCat" parent="." instance=ExtResource("4_ai_cat")]
-position = Vector3(-4.0, 0.1, -26)
+position = Vector3(-2.2, 0.25, -350)
 cat_name = "灰猫"
 body_material = ExtResource("12_gray")
-leave_after = 42.0
+leave_z = -430.0
 
 [node name="WhiteCat" parent="." instance=ExtResource("5_white_cat")]
-position = Vector3(1.6, 0.1, -7.5)
+position = Vector3(2.1, 0.25, -18)
 
 [node name="DialogueLayer" parent="." instance=ExtResource("6_dialogue")]
+
+[node name="HUD" type="CanvasLayer" parent="."]
+
+[node name="Hint" type="Label" parent="HUD"]
+offset_left = 24.0
+offset_top = 16.0
+offset_right = 980.0
+offset_bottom = 92.0
+theme_override_colors/font_color = Color(0.94, 0.95, 0.97, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.75)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+theme_override_font_sizes/font_size = 18
+text = "按住 W 沿镜头前方走。鼠标环顾，Shift 跑，Space 跳，E 呼唤附近的猫。\n靠近会结伴，走到约定处它们会离开。白猫说话时，用空格或回车把句子听完。"
+
+[node name="EndLabel" type="Label" parent="HUD"]
+visible = false
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -280.0
+offset_top = 72.0
+offset_right = 280.0
+offset_bottom = 170.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(1, 0.93, 0.78, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.8)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+theme_override_font_sizes/font_size = 28
+text = "到了。\n这一段路有风，也有同行过的猫。"
+horizontal_alignment = 1

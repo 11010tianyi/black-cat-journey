@@ -53,10 +53,6 @@ surface_material_override/0 = ExtResource("3_eye")
 [node name="CameraPivot" type="Node3D" parent="."]
 position = Vector3(0, 0.8, 0)
 
-[node name="SpringArm3D" type="SpringArm3D" parent="CameraPivot"]
-spring_length = 5.0
-margin = 0.15
-
-[node name="Camera3D" type="Camera3D" parent="CameraPivot/SpringArm3D"]
+[node name="Camera3D" type="Camera3D" parent="CameraPivot"]
 current = true
 fov = 62.0
