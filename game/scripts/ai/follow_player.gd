@@ -2,10 +2,11 @@ extends ActionLeaf
 
 @export var move_speed := 2.4
 
-func tick(delta: float, _blackboard: Blackboard) -> int:
-	var player: Node3D = _blackboard.get_value("player")
-	var cat: CharacterBody3D = _blackboard.get_value("cat")
-	var companion_manager: Node = _blackboard.get_value("companion_manager")
+func tick(actor: Node, blackboard: Blackboard) -> int:
+	var delta := actor.get_physics_process_delta_time()
+	var player: Node3D = blackboard.get_value("player")
+	var cat: CharacterBody3D = blackboard.get_value("cat")
+	var companion_manager: Node = blackboard.get_value("companion_manager")
 	if player == null or cat == null:
 		return FAILURE
 

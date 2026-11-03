@@ -4,17 +4,18 @@ extends ActionLeaf
 @export var speed_scale := 0.55
 @export var wander_range := 4.0
 
-func tick(delta: float, _blackboard: Blackboard) -> int:
-	var cat: CharacterBody3D = _blackboard.get_value("cat")
+func tick(actor: Node, blackboard: Blackboard) -> int:
+	var delta := actor.get_physics_process_delta_time()
+	var cat: CharacterBody3D = blackboard.get_value("cat")
 	if cat == null:
 		return FAILURE
 
-	var wander_target: Vector3 = _blackboard.get_value("wander_target", cat.global_position)
-	var wander_anchor: Vector3 = _blackboard.get_value("wander_anchor", cat.global_position)
+	var wander_target: Vector3 = blackboard.get_value("wander_target", cat.global_position)
+	var wander_anchor: Vector3 = blackboard.get_value("wander_anchor", cat.global_position)
 
 	if cat.global_position.distance_to(wander_target) < 0.8:
 		wander_target = wander_anchor + Vector3(randf_range(-wander_range, wander_range), 0, randf_range(-wander_range, wander_range))
-		_blackboard.set_value("wander_target", wander_target)
+		blackboard.set_value("wander_target", wander_target)
 
 	var direction := wander_target - cat.global_position
 	direction.y = 0.0

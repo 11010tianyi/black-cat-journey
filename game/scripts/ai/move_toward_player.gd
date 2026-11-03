@@ -4,9 +4,10 @@ extends ActionLeaf
 @export var speed_scale := 1.0
 @export var join_radius := 1.8
 
-func tick(delta: float, _blackboard: Blackboard) -> int:
-	var player: Node3D = _blackboard.get_value("player")
-	var cat: CharacterBody3D = _blackboard.get_value("cat")
+func tick(actor: Node, blackboard: Blackboard) -> int:
+	var delta := actor.get_physics_process_delta_time()
+	var player: Node3D = blackboard.get_value("player")
+	var cat: CharacterBody3D = blackboard.get_value("cat")
 	if player == null or cat == null:
 		return FAILURE
 
