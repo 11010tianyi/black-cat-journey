@@ -10,6 +10,7 @@ var _player: Node3D
 var _cooldown := 0.0
 var _dialogue_resource: DialogueResource
 var _showing := false
+@onready var _model: CatModel = $Model
 
 func _ready() -> void:
 	add_to_group("white_cat")
@@ -24,6 +25,10 @@ func _process(delta: float) -> void:
 	if _player == null:
 		_player = get_tree().get_first_node_in_group("player")
 		return
+	var to_player := _player.global_position - global_position
+	to_player.y = 0.0
+	if to_player.length() < 6.0:
+		rotation.y = lerp_angle(rotation.y, atan2(-to_player.x, -to_player.z), 3.0 * delta)
 	if global_position.distance_to(_player.global_position) <= trigger_radius:
 		_show_lines()
 

@@ -18,13 +18,11 @@ var _player: Node3D
 var _companion_manager: Node
 var _anchor := Vector3.ZERO
 var _leave_target := Vector3.ZERO
+@onready var _model: CatModel = $VisualRoot/Model
 
 func _ready() -> void:
-	if body_material != null:
-		for node_name in ["Body", "Head"]:
-			var mesh := get_node_or_null(node_name)
-			if mesh is MeshInstance3D:
-				mesh.set_surface_override_material(0, body_material)
+	if body_material != null and _model != null:
+		_model.apply_fur(body_material)
 	_anchor = global_position
 	_find_actors()
 	_connect_meow()
@@ -54,6 +52,16 @@ func _physics_process(delta: float) -> void:
 			_halt_horizontal(delta)
 
 	move_and_slide()
+	_sync_animation()
+
+func _sync_animation() -> void:
+	if _model == null:
+		return
+	var planar := Vector2(velocity.x, velocity.z).length()
+	if planar > 0.25:
+		_model.play_walk(planar / move_speed)
+	else:
+		_model.play_idle()
 
 func _on_player_meowed(origin: Vector3) -> void:
 	if state == State.FOLLOW or state == State.LEAVE or state == State.LEFT:
