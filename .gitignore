@@ -14,3 +14,7 @@ game/assets/models/*.glb
 game/assets/models/*.gltf
 game/assets/hdri/*.hdr
 game/assets/textures/terrain/*.jpg
+
+# Godot 4.4+ generates one .uid per script/shader on import. They are local
+# cache-like metadata; the scenes here reference resources by path.
+*.uid

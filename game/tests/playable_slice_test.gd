@@ -11,7 +11,11 @@ var _advanced_line := ""
 
 func _initialize() -> void:
 	change_scene_to_file("res://scenes/main.tscn")
-	process_frame.connect(_on_frame)
+	# Movement happens in _physics_process, so the state machine must be driven by
+	# physics ticks. Counting render frames made this test pass at 60 fps and fail
+	# whenever the engine ran uncapped (headless CI), because 70 render frames could
+	# cover less than one physics tick.
+	physics_frame.connect(_on_frame)
 
 func _fail(message: String) -> void:
 	push_error(message)
