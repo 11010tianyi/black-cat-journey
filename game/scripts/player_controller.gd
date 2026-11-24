@@ -36,6 +36,10 @@ func _ready() -> void:
 	# Pointer lock is granted by the start overlay (it needs a user gesture).
 	_register_input_actions()
 
+func add_look_delta(delta: Vector2) -> void:
+	_camera_yaw -= delta.x
+	_camera_pitch = clampf(_camera_pitch - delta.y, -0.55, 0.28)
+
 func set_virtual_move(value: Vector2) -> void:
 	virtual_move = value.limit_length(1.0)
 

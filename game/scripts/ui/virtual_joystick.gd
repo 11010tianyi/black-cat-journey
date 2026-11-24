@@ -1,31 +1,38 @@
 class_name VirtualJoystick
 extends Control
 
-## Fixed-base touch stick. The owner feeds it positions and this node only draws;
-## hit-testing is done by the owner so it cannot be swallowed by GUI routing.
+## Floating stick: invisible until the first finger lands, then it appears under
+## that finger. Drawn in screen space; hit-testing lives in touch_controls.gd.
 
 signal vector_changed(value: Vector2)
 
-@export var radius := 78.0
-@export var deadzone := 0.15
+@export var radius := 120.0
+@export var deadzone := 0.12
 
+var _center := Vector2.ZERO
 var _knob := Vector2.ZERO
 var active := false
 
 func _ready() -> void:
-	custom_minimum_size = Vector2(radius * 2.0, radius * 2.0)
-	size = custom_minimum_size
+	set_anchors_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	visible = false
 
-func center_global() -> Vector2:
-	return get_global_rect().position + size * 0.5
+func show_at(point: Vector2) -> void:
+	_center = point
+	_knob = Vector2.ZERO
+	active = true
+	visible = true
+	vector_changed.emit(Vector2.ZERO)
+	queue_redraw()
 
-func set_from_global(point: Vector2) -> void:
-	var offset := point - center_global()
+func update_to(point: Vector2) -> void:
+	if not active:
+		return
+	var offset := point - _center
 	if offset.length() > radius:
 		offset = offset.normalized() * radius
 	_knob = offset
-	active = true
 	var value := offset / radius
 	if value.length() < deadzone:
 		value = Vector2.ZERO
@@ -35,12 +42,14 @@ func set_from_global(point: Vector2) -> void:
 func release() -> void:
 	active = false
 	_knob = Vector2.ZERO
+	visible = false
 	vector_changed.emit(Vector2.ZERO)
 	queue_redraw()
 
 func _draw() -> void:
-	var center := size * 0.5
-	draw_circle(center, radius, Color(1.0, 1.0, 1.0, 0.09))
-	draw_arc(center, radius, 0.0, TAU, 60, Color(1.0, 1.0, 1.0, 0.26), 2.0, true)
-	draw_circle(center + _knob, radius * 0.42, Color(0.98, 0.88, 0.62, 0.5))
-	draw_arc(center + _knob, radius * 0.42, 0.0, TAU, 40, Color(1.0, 0.93, 0.78, 0.65), 2.0, true)
+	if not active:
+		return
+	draw_circle(_center, radius, Color(1.0, 1.0, 1.0, 0.10))
+	draw_arc(_center, radius, 0.0, TAU, 64, Color(1.0, 1.0, 1.0, 0.30), 3.0, true)
+	draw_circle(_center + _knob, radius * 0.38, Color(0.98, 0.88, 0.62, 0.45))
+	draw_arc(_center + _knob, radius * 0.38, 0.0, TAU, 48, Color(1.0, 0.93, 0.78, 0.75), 3.0, true)
