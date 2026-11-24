@@ -12,25 +12,48 @@ enum State { IDLE, WALK, RUN, JUMP, IN_AIR }
 @export var acceleration := 12.0
 @export var deceleration := 16.0
 @export var air_control := 0.4
-@export var camera_distance := 5.4
+@export var camera_distance := 2.4
 @export var fall_limit_y := -6.0
 
 var state := State.IDLE
 var control_enabled := true
+## Filled in by the touch controls; zero means "use the keyboard".
+var virtual_move := Vector2.ZERO
+var virtual_run := false
 var _gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity", 9.8)
 var _meow_timer := 0.0
 var _camera_yaw := 0.0
-var _camera_pitch := -0.22
+var _camera_pitch := -0.16
 var _spawn_position := Vector3.ZERO
 
 @onready var _visual_root: Node3D = $VisualRoot
+@onready var _model: CatModel = $VisualRoot/Model
 @onready var _camera: Camera3D = $CameraPivot/Camera3D
 
 func _ready() -> void:
 	add_to_group("player")
 	_spawn_position = global_position
-	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+	# Pointer lock is granted by the start overlay (it needs a user gesture).
 	_register_input_actions()
+
+func add_look_delta(delta: Vector2) -> void:
+	_camera_yaw -= delta.x
+	_camera_pitch = clampf(_camera_pitch - delta.y, -0.55, 0.28)
+
+func set_virtual_move(value: Vector2) -> void:
+	virtual_move = value.limit_length(1.0)
+
+func set_virtual_run(running: bool) -> void:
+	virtual_run = running
+
+func request_jump() -> void:
+	if control_enabled and is_on_floor():
+		velocity.y = jump_velocity
+		state = State.JUMP
+
+func request_meow() -> void:
+	if control_enabled and _meow_timer <= 0.0:
+		_meow()
 
 func set_control_enabled(enabled: bool) -> void:
 	control_enabled = enabled
@@ -83,16 +106,19 @@ func _physics_process(delta: float) -> void:
 
 	_update_camera()
 	move_and_slide()
+	_sync_animation()
 
 func _apply_move_input(delta: float) -> void:
 	var input_dir := Input.get_vector(
 		"play_char_move_left_action", "play_char_move_right_action",
 		"play_char_move_forward_action", "play_char_move_backward_action"
 	)
-	var is_running := Input.is_action_pressed("play_char_run_action")
+	var is_running := Input.is_action_pressed("play_char_run_action") or virtual_run
 	var speed := run_speed if is_running else walk_speed
 	var forward := Vector3(sin(_camera_yaw), 0.0, -cos(_camera_yaw))
 	var right := Vector3(cos(_camera_yaw), 0.0, sin(_camera_yaw))
+	if virtual_move.length() > 0.08:
+		input_dir = virtual_move
 	var direction := right * input_dir.x + forward * -input_dir.y
 	if direction.length() > 1.0:
 		direction = direction.normalized()
@@ -110,8 +136,17 @@ func _apply_move_input(delta: float) -> void:
 		if is_on_floor():
 			state = State.IDLE
 
+func _sync_animation() -> void:
+	if _model == null:
+		return
+	var planar := Vector2(velocity.x, velocity.z).length()
+	if planar > 0.25 and is_on_floor():
+		_model.play_walk(planar / walk_speed)
+	else:
+		_model.play_idle()
+
 func _update_camera() -> void:
-	var pivot := global_position + Vector3(0.0, 0.85, 0.0)
+	var pivot := global_position + Vector3(0.0, 0.42, 0.0)
 	var flat_forward := Vector3(sin(_camera_yaw), 0.0, -cos(_camera_yaw))
 	var pitched := (flat_forward * cos(_camera_pitch) + Vector3.UP * sin(_camera_pitch)).normalized()
 	_camera.global_position = pivot - pitched * camera_distance
@@ -125,7 +160,7 @@ func _respawn() -> void:
 	global_position = _spawn_position
 	velocity = Vector3.ZERO
 	_camera_yaw = 0.0
-	_camera_pitch = -0.22
+	_camera_pitch = -0.16
 	state = State.IDLE
 
 func _register_input_actions() -> void:
