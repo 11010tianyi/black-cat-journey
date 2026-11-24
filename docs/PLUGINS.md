@@ -53,6 +53,11 @@ GDExtension 的规则：**导出到哪个平台，就必须在仓库里有那个
 
 > `.gitignore` 里原本忽略 `game/addons/terrain_3d/bin/libterrain.*`，已删除这些规则，否则云端打包拿不到库。
 
+**实测补充**：当前场景还没有任何节点使用 Terrain3D，所以导出时 Godot 没有把
+`libterrain.*` 打进 APK（构建日志里只有 `libgodot_android.so` 等）。这是正常行为——
+GDExtension 的原生库只在扩展被加载/使用时才进入包。**一旦场景里出现 Terrain3D 节点，
+对应平台的库会被自动加进去**，前提就是仓库里有那个文件。
+
 ## 5. Web 为什么不行
 
 Godot 官方 Web 导出模板的构建配置是 `single-threaded, no GDExtension support`（在导出包里实测到的日志）。Terrain3D 是 GDExtension，因此 Web 端无法加载，`terrain.gdextension` 里那两个 `.wasm` 条目不会被用到。
