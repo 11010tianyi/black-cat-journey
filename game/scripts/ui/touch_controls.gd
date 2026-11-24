@@ -18,7 +18,9 @@ func _ready() -> void:
 func _build() -> void:
 	var root := Control.new()
 	root.set_anchors_preset(Control.PRESET_FULL_RECT)
-	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	# PASS, not IGNORE: Godot's IGNORE also disables hit-testing for every child,
+	# which silently made the stick and buttons dead.
+	root.mouse_filter = Control.MOUSE_FILTER_PASS
 	add_child(root)
 
 	_stick = VirtualJoystick.new()
