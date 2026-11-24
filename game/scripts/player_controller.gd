@@ -30,7 +30,10 @@ var _spawn_position := Vector3.ZERO
 func _ready() -> void:
 	add_to_group("player")
 	_spawn_position = global_position
-	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+	# Browsers only grant pointer lock after a user gesture, so the web build
+	# captures on the first click instead of throwing on load.
+	if not OS.has_feature("web"):
+		Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 	_register_input_actions()
 
 func set_control_enabled(enabled: bool) -> void:

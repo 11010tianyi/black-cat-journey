@@ -44,10 +44,10 @@ func zone_color(z: float) -> Color:
 func _create_navigation_region() -> NavigationRegion3D:
 	var nav_mesh := NavigationMesh.new()
 	nav_mesh.geometry_parsed_geometry_type = NavigationMesh.PARSED_GEOMETRY_STATIC_COLLIDERS
-	nav_mesh.cell_size = 1.0
-	nav_mesh.cell_height = 0.3
-	nav_mesh.agent_radius = 0.35
-	nav_mesh.agent_height = 1.3
+	nav_mesh.cell_size = 0.5
+	nav_mesh.cell_height = 0.25
+	nav_mesh.agent_radius = 0.5
+	nav_mesh.agent_height = 1.25
 	nav_mesh.agent_max_climb = 0.5
 	nav_mesh.agent_max_slope = 38.0
 	# Only the walking corridor needs a path mesh; the outer hills would triple
