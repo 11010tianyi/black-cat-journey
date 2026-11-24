@@ -116,7 +116,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p build/android
-          "$GODOT_BIN" --headless --path game --export-debug "Android" "$PWD/build/android/black-cat-journey.apk"
+          "$GODOT_BIN" --headless --verbose --path game --export-debug "Android" "$PWD/build/android/black-cat-journey.apk"
           ls -la build/android
 
       - uses: actions/upload-artifact@v4
