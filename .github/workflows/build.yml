@@ -12,25 +12,25 @@ on:
 permissions:
   contents: read
 
+env:
+  GODOT_VERSION: 4.6.3-stable
+
 jobs:
-  export:
-    name: Export Linux / Windows / Web
+  desktop:
+    name: Export Linux / Windows / macOS
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      # Templates are ~1 GB and only needed for exporting, so the test workflow
-      # stays lean and this one pays the download.
-      - name: Install Godot 4.6.3 and export templates
+      - name: Install Godot and export templates
         run: |
           set -euo pipefail
-          version="4.6.3-stable"
-          base="https://github.com/godotengine/godot/releases/download/${version}"
-          curl -fsSL "${base}/Godot_v${version}_linux.x86_64.zip" -o /tmp/godot.zip
+          base="https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}"
+          curl -fsSL "${base}/Godot_v${GODOT_VERSION}_linux.x86_64.zip" -o /tmp/godot.zip
           unzip -q /tmp/godot.zip -d /tmp/godot
-          chmod +x "/tmp/godot/Godot_v${version}_linux.x86_64"
-          echo "GODOT_BIN=/tmp/godot/Godot_v${version}_linux.x86_64" >> "$GITHUB_ENV"
-          curl -fsSL "${base}/Godot_v${version}_export_templates.tpz" -o /tmp/templates.tpz
+          chmod +x "/tmp/godot/Godot_v${GODOT_VERSION}_linux.x86_64"
+          echo "GODOT_BIN=/tmp/godot/Godot_v${GODOT_VERSION}_linux.x86_64" >> "$GITHUB_ENV"
+          curl -fsSL "${base}/Godot_v${GODOT_VERSION}_export_templates.tpz" -o /tmp/templates.tpz
           mkdir -p "$HOME/.local/share/godot/export_templates"
           unzip -q /tmp/templates.tpz -d /tmp/tpl
           mv /tmp/tpl/templates "$HOME/.local/share/godot/export_templates/4.6.3.stable"
@@ -38,28 +38,86 @@ jobs:
       - name: Import project
         run: '"$GODOT_BIN" --headless --path game --import'
 
-      - name: Export all presets
+      - name: Export desktops
         run: |
           set -euo pipefail
-          mkdir -p build/linux build/windows build/web
+          mkdir -p build/linux build/windows build/macos
           "$GODOT_BIN" --headless --path game --export-release "Linux" "$PWD/build/linux/black-cat-journey.x86_64"
           "$GODOT_BIN" --headless --path game --export-release "Windows" "$PWD/build/windows/black-cat-journey.exe"
-          "$GODOT_BIN" --headless --path game --export-release "Web" "$PWD/build/web/index.html"
+          # Unsigned: Gatekeeper will still warn on first open.
+          "$GODOT_BIN" --headless --path game --export-release "macOS" "$PWD/build/macos/BlackCatJourney.zip"
 
-      - name: Upload Linux
-        uses: actions/upload-artifact@v4
-        with:
-          name: black-cat-journey-linux-x86_64
-          path: build/linux/
+      - uses: actions/upload-artifact@v4
+        with: { name: black-cat-journey-linux-x86_64, path: build/linux/ }
+      - uses: actions/upload-artifact@v4
+        with: { name: black-cat-journey-windows-x86_64, path: build/windows/ }
+      - uses: actions/upload-artifact@v4
+        with: { name: black-cat-journey-macos, path: build/macos/ }
 
-      - name: Upload Windows
-        uses: actions/upload-artifact@v4
-        with:
-          name: black-cat-journey-windows-x86_64
-          path: build/windows/
+  android:
+    name: Android debug APK
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
 
-      - name: Upload Web
-        uses: actions/upload-artifact@v4
+      - name: Install Godot and export templates
+        run: |
+          set -euo pipefail
+          base="https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}"
+          curl -fsSL "${base}/Godot_v${GODOT_VERSION}_linux.x86_64.zip" -o /tmp/godot.zip
+          unzip -q /tmp/godot.zip -d /tmp/godot
+          chmod +x "/tmp/godot/Godot_v${GODOT_VERSION}_linux.x86_64"
+          echo "GODOT_BIN=/tmp/godot/Godot_v${GODOT_VERSION}_linux.x86_64" >> "$GITHUB_ENV"
+          curl -fsSL "${base}/Godot_v${GODOT_VERSION}_export_templates.tpz" -o /tmp/templates.tpz
+          mkdir -p "$HOME/.local/share/godot/export_templates"
+          unzip -q /tmp/templates.tpz -d /tmp/tpl
+          mv /tmp/tpl/templates "$HOME/.local/share/godot/export_templates/4.6.3.stable"
+
+      - uses: actions/setup-java@v4
         with:
-          name: black-cat-journey-web
-          path: build/web/
+          distribution: temurin
+          java-version: "21"
+
+      - uses: android-actions/setup-android@v4
+        with:
+          packages: "platform-tools"
+
+      - name: Install Android packages
+        run: sdkmanager --install "platform-tools" "platforms;android-36" "build-tools;36.0.0"
+
+      - name: Create debug keystore
+        run: |
+          set -euo pipefail
+          mkdir -p "$HOME/.android"
+          keytool -genkeypair -v -keystore "$HOME/.android/debug.keystore" \
+            -storepass android -alias androiddebugkey -keypass android \
+            -keyalg RSA -keysize 2048 -validity 10000 \
+            -dname "CN=Android Debug,O=Android,C=US" -deststoretype pkcs12
+
+      - name: Point Godot at the SDK
+        run: |
+          set -euo pipefail
+          mkdir -p "$HOME/.config/godot"
+          cat > "$HOME/.config/godot/editor_settings-4.6.tres" <<EOF
+          [gd_resource type="EditorSettings" format=3]
+
+          [resource]
+          export/android/android_sdk_path = "${ANDROID_SDK_ROOT}"
+          export/android/java_sdk_path = "${JAVA_HOME}"
+          export/android/debug_keystore = "${HOME}/.android/debug.keystore"
+          export/android/debug_keystore_user = "androiddebugkey"
+          export/android/debug_keystore_pass = "android"
+          EOF
+
+      - name: Import project
+        run: '"$GODOT_BIN" --headless --path game --import'
+
+      - name: Export APK
+        run: |
+          set -euo pipefail
+          mkdir -p build/android
+          "$GODOT_BIN" --headless --path game --export-debug "Android" "$PWD/build/android/black-cat-journey.apk"
+          ls -la build/android
+
+      - uses: actions/upload-artifact@v4
+        with: { name: black-cat-journey-android-apk, path: build/android/ }
