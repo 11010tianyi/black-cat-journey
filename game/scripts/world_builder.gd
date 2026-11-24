@@ -26,9 +26,12 @@ func _ready() -> void:
 	_noise.fractal_octaves = 3
 	_detail.seed = 771
 	_detail.frequency = 0.12
-	if use_terrain3d:
+	# The native Terrain3D library is not guaranteed to be packed into exported
+	# builds yet, so fall back to the mesh rather than shipping a terrainless map.
+	if use_terrain3d and ClassDB.class_exists("Terrain3D"):
 		_build_terrain3d()
 	else:
+		push_warning("Terrain3D 不可用，退回程序化地形网格")
 		_build_terrain_mesh()
 	_scatter_nature()
 
@@ -138,9 +141,10 @@ func _build_terrain_mesh() -> void:
 			var p10 := Vector3(x1, height_at(x1, z0), z0)
 			var p01 := Vector3(x0, height_at(x0, z1), z1)
 			var p11 := Vector3(x1, height_at(x1, z1), z1)
+			var color := _zone_color(z0)
 			for tri in [[p00, p01, p11], [p00, p11, p10]]:
 				for point in tri:
-					st.set_color(Color(0.28, 0.42, 0.26).srgb_to_linear())
+					st.set_color(color.srgb_to_linear())
 					st.add_vertex(point)
 	st.generate_normals()
 	var instance := MeshInstance3D.new()
@@ -148,6 +152,11 @@ func _build_terrain_mesh() -> void:
 	instance.mesh = st.commit()
 	instance.create_trimesh_collision()
 	add_child(instance)
+
+func _zone_color(z: float) -> Color:
+	var ruin := clampf((-z - 130.0) / 110.0, 0.0, 1.0)
+	var snow := clampf((-z - 300.0) / 90.0, 0.0, 1.0)
+	return Color(0.23, 0.36, 0.28).lerp(Color(0.43, 0.40, 0.36), ruin).lerp(Color(0.72, 0.78, 0.82), snow)
 
 func _scatter_nature() -> void:
 	if not use_nature_models:
