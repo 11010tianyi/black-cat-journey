@@ -89,3 +89,24 @@ Web 目标已冻结，代码存档在分支 `archive/web-build` 和 Release `web
 | ETC2/ASTC | macOS/Android 导出失败，错误列表为空 | 开 `rendering/textures/vram_compression/import_etc2_astc=true` |
 | NavMesh 烘焙 0 面 | `bake_navigation_mesh()` 无几何 | 只解析 region 自己的子树，地形要挂在 region 下 |
 | 触屏控件无响应 | 摇杆拖不动 | 根节点 `MOUSE_FILTER_IGNORE` 会连子节点一起屏蔽（已改，但 Web 端仍未验证通过） |
+
+## 8. Terrain3D 接入记录（2026-11-24）
+
+主场景地形已从程序化网格换成 Terrain3D。落地时踩到的坑：
+
+| 现象 | 原因 | 处理 |
+| --- | --- | --- |
+| `Cannot assign a new value to a read-only property` | `data` / `material` / `assets` / `collision` 都是只读 | `add_child()` 后 Terrain3D 会自动建好，直接改现成对象 |
+| `No active region found` | region `(0,0)` 只覆盖 z ≥ 0 | 负 z 用 `(0,-1)`，且边界值归属相邻 region，循环要从 1 开始 |
+| 地形显示棋盘格 | Terrain3D 的调试视图默认开着 | 同时关 `terrain.show_checkered` 和 `material.show_checkered` |
+| `Parameter "material" is null` | 用 `Terrain3DMaterial.new()` 覆盖会丢内部 RID | 取 `terrain.material` 原地改 `shader_override` |
+| 碰撞缺失、角色掉落 | `collision_mode = 0` 时没有碰撞；开启后又是异步生成 | 用同一份 `height_at()` 单独生成 2 米精度碰撞网格（`create_trimesh_collision`），保证第一帧就有地面 |
+
+配色：`game/shaders/terrain_palette.gdshader` 基于 addon 的 `minimum.gdshader`，用
+Poly Haven 的 CC0 纹理做三平面混合（草 / 岩 / 雪），按高度和坡度过渡。
+纹理：`game/assets/textures/terrain/*.jpg`（各 1k，来自 polyhaven.com，CC0）。
+
+**已知未完成**：`use_nature_models = true` 时用 Quaternius 自然包（CC0）的
+草丛/石头/树做 MultiMesh 撒点，实例创建成功但渲染不出来——连纯 `BoxMesh`
+的 MultiMesh 都不显示，判断是我的 MultiMesh 装配方式问题而非模型资源。
+默认 `use_nature_models = false`，退回程序化圆锥/球体，保证画面不空。
