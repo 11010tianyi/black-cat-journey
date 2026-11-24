@@ -19,6 +19,8 @@ var _companion_manager: Node
 var _anchor := Vector3.ZERO
 var _leave_target := Vector3.ZERO
 @onready var _model: CatModel = $VisualRoot/Model
+@onready var _agent: NavigationAgent3D = $NavigationAgent3D
+var _nav_ready := false
 
 func _ready() -> void:
 	if body_material != null and _model != null:
@@ -32,6 +34,7 @@ func _ready() -> void:
 func _physics_process(delta: float) -> void:
 	_find_actors()
 	_connect_meow()
+	_nav_ready = _navigation_available()
 
 	if global_position.y < -6.0:
 		_recover_from_fall()
@@ -137,8 +140,23 @@ func _follow_target() -> Vector3:
 func _speed_for(distance: float) -> float:
 	return catchup_speed if distance > 4.0 else move_speed
 
+func _navigation_available() -> bool:
+	if _agent == null:
+		return false
+	var map := _agent.get_navigation_map()
+	if not map.is_valid():
+		return false
+	return not NavigationServer3D.map_get_regions(map).is_empty()
+
 func _move_toward(target: Vector3, speed: float, delta: float) -> void:
 	var direction := target - global_position
+	if _nav_ready:
+		_agent.target_position = target
+		var next := _agent.get_next_path_position()
+		# A fresh or empty navigation map makes the agent echo its own position;
+		# fall back to steering straight at the target instead of freezing.
+		if next.distance_to(global_position) > 0.05:
+			direction = next - global_position
 	direction.y = 0.0
 	if direction.length() < 0.05:
 		_halt_horizontal(delta)

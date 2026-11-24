@@ -23,3 +23,9 @@ shape = SubResource("CapsuleShape3D_cat")
 script = ExtResource("3_model")
 
 [node name="Rig" parent="VisualRoot/Model" instance=ExtResource("2_cat")]
+
+[node name="NavigationAgent3D" type="NavigationAgent3D" parent="."]
+radius = 0.3
+path_desired_distance = 0.8
+target_desired_distance = 0.9
+avoidance_enabled = false

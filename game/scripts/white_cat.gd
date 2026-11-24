@@ -1,7 +1,6 @@
 extends Node3D
 
 const DIALOGUE_PATH := "res://data/white_cat.dialogue"
-const START_CUE := "first_meeting"
 
 @export var trigger_radius := 3.6
 @export var retrigger_cooldown := 12.0
@@ -10,6 +9,7 @@ var _player: Node3D
 var _cooldown := 0.0
 var _dialogue_resource: DialogueResource
 var _showing := false
+var _meetings := 0
 @onready var _model: CatModel = $Model
 
 func _ready() -> void:
@@ -39,7 +39,7 @@ func _show_lines() -> void:
 	_showing = true
 	_set_player_control(false)
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
-	DialogueManager.show_dialogue_balloon(_dialogue_resource, START_CUE)
+	DialogueManager.show_dialogue_balloon(_dialogue_resource, _next_cue())
 
 func _load_dialogue() -> DialogueResource:
 	if ResourceLoader.exists(DIALOGUE_PATH):
@@ -51,10 +51,20 @@ func _load_dialogue() -> DialogueResource:
 		return null
 	return DialogueManager.create_resource_from_text(FileAccess.get_file_as_string(DIALOGUE_PATH))
 
+## The white cat has three conversations: the first meeting, a second one, and a
+## closing one once the player is near the end of the road.
+func _next_cue() -> String:
+	if _meetings == 0:
+		return "first_meeting"
+	if _player != null and _player.global_position.z < -330.0:
+		return "last_meeting"
+	return "second_meeting"
+
 func _on_dialogue_ended(resource: DialogueResource) -> void:
 	if resource != _dialogue_resource:
 		return
 	_showing = false
+	_meetings += 1
 	_cooldown = retrigger_cooldown
 	_set_player_control(true)
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED

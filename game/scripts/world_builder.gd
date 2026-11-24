@@ -23,9 +23,11 @@ func _ready() -> void:
 	_noise.fractal_octaves = 3
 	_detail.seed = 771
 	_detail.frequency = 0.12
-	_build_terrain()
+	var region := _create_navigation_region()
+	_build_terrain(region)
 	_scatter_rocks()
 	_scatter_grass()
+	_bake_navigation(region)
 
 func height_at(x: float, z: float) -> float:
 	# Flat within |x| <= 5 so the walking lane and the slice test stay level.
@@ -39,7 +41,28 @@ func zone_color(z: float) -> Color:
 	var snow_mix := clampf((-z - 300.0) / 90.0, 0.0, 1.0)
 	return GRASS.lerp(RUIN, ruin_mix).lerp(SNOW, snow_mix)
 
-func _build_terrain() -> void:
+func _create_navigation_region() -> NavigationRegion3D:
+	var nav_mesh := NavigationMesh.new()
+	nav_mesh.geometry_parsed_geometry_type = NavigationMesh.PARSED_GEOMETRY_STATIC_COLLIDERS
+	nav_mesh.cell_size = 1.0
+	nav_mesh.cell_height = 0.3
+	nav_mesh.agent_radius = 0.35
+	nav_mesh.agent_height = 1.3
+	nav_mesh.agent_max_climb = 0.5
+	nav_mesh.agent_max_slope = 38.0
+	# Only the walking corridor needs a path mesh; the outer hills would triple
+	# the voxel count for nothing.
+	nav_mesh.filter_baking_aabb = AABB(Vector3(-32.0, -6.0, -540.0), Vector3(64.0, 22.0, 580.0))
+	var region := NavigationRegion3D.new()
+	region.name = "NavigationRegion3D"
+	region.navigation_mesh = nav_mesh
+	add_child(region)
+	return region
+
+func _bake_navigation(region: NavigationRegion3D) -> void:
+	region.bake_navigation_mesh(false)
+
+func _build_terrain(region: NavigationRegion3D) -> void:
 	var st := SurfaceTool.new()
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)
 	var half := terrain_width * 0.5
@@ -63,7 +86,7 @@ func _build_terrain() -> void:
 	material.vertex_color_use_as_albedo = true
 	material.roughness = 1.0
 	instance.material_override = material
-	add_child(instance)
+	region.add_child(instance)
 	instance.create_trimesh_collision()
 
 func _triangle(st: SurfaceTool, a: Vector3, b: Vector3, c: Vector3, z_for_color: float) -> void:
