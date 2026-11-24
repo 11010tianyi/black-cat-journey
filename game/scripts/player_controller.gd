@@ -17,6 +17,9 @@ enum State { IDLE, WALK, RUN, JUMP, IN_AIR }
 
 var state := State.IDLE
 var control_enabled := true
+## Filled in by the touch controls; zero means "use the keyboard".
+var virtual_move := Vector2.ZERO
+var virtual_run := false
 var _gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity", 9.8)
 var _meow_timer := 0.0
 var _camera_yaw := 0.0
@@ -30,11 +33,23 @@ var _spawn_position := Vector3.ZERO
 func _ready() -> void:
 	add_to_group("player")
 	_spawn_position = global_position
-	# Browsers only grant pointer lock after a user gesture, so the web build
-	# captures on the first click instead of throwing on load.
-	if not OS.has_feature("web"):
-		Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+	# Pointer lock is granted by the start overlay (it needs a user gesture).
 	_register_input_actions()
+
+func set_virtual_move(value: Vector2) -> void:
+	virtual_move = value.limit_length(1.0)
+
+func set_virtual_run(running: bool) -> void:
+	virtual_run = running
+
+func request_jump() -> void:
+	if control_enabled and is_on_floor():
+		velocity.y = jump_velocity
+		state = State.JUMP
+
+func request_meow() -> void:
+	if control_enabled and _meow_timer <= 0.0:
+		_meow()
 
 func set_control_enabled(enabled: bool) -> void:
 	control_enabled = enabled
@@ -94,10 +109,12 @@ func _apply_move_input(delta: float) -> void:
 		"play_char_move_left_action", "play_char_move_right_action",
 		"play_char_move_forward_action", "play_char_move_backward_action"
 	)
-	var is_running := Input.is_action_pressed("play_char_run_action")
+	var is_running := Input.is_action_pressed("play_char_run_action") or virtual_run
 	var speed := run_speed if is_running else walk_speed
 	var forward := Vector3(sin(_camera_yaw), 0.0, -cos(_camera_yaw))
 	var right := Vector3(cos(_camera_yaw), 0.0, sin(_camera_yaw))
+	if virtual_move.length() > 0.08:
+		input_dir = virtual_move
 	var direction := right * input_dir.x + forward * -input_dir.y
 	if direction.length() > 1.0:
 		direction = direction.normalized()

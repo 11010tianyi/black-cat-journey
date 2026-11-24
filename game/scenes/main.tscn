@@ -1,4 +1,4 @@
-[gd_scene load_steps=19 format=3]
+[gd_scene load_steps=21 format=3]
 
 [ext_resource type="Script" path="res://scripts/world_event_director.gd" id="1_world"]
 [ext_resource type="Script" path="res://scripts/companion_manager.gd" id="2_companion"]
@@ -10,6 +10,8 @@
 [ext_resource type="Material" path="res://materials/calico.tres" id="8_calico"]
 [ext_resource type="Material" path="res://materials/tabby.tres" id="9_tabby"]
 [ext_resource type="Material" path="res://materials/gray.tres" id="10_gray"]
+[ext_resource type="Script" path="res://scripts/ui/touch_controls.gd" id="11_touch"]
+[ext_resource type="Script" path="res://scripts/ui/start_overlay.gd" id="12_overlay"]
 
 [sub_resource type="ProceduralSkyMaterial" id="SkyMaterial_dusk"]
 sky_top_color = Color(0.035, 0.065, 0.145, 1)
@@ -170,3 +172,9 @@ theme_override_constants/shadow_offset_y = 1
 theme_override_font_sizes/font_size = 28
 text = "到了。\n这一段路有风，也有同行过的猫。"
 horizontal_alignment = 1
+
+[node name="TouchControls" type="CanvasLayer" parent="."]
+script = ExtResource("11_touch")
+
+[node name="StartOverlay" type="CanvasLayer" parent="."]
+script = ExtResource("12_overlay")
