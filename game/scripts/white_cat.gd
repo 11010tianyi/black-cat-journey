@@ -53,6 +53,12 @@ func _load_dialogue() -> DialogueResource:
 
 ## The white cat has three conversations: the first meeting, a second one, and a
 ## closing one once the player is near the end of the road.
+func meetings_count() -> int:
+	return _meetings
+
+func set_meetings(value: int) -> void:
+	_meetings = maxi(0, value)
+
 func _next_cue() -> String:
 	if _meetings == 0:
 		return "first_meeting"

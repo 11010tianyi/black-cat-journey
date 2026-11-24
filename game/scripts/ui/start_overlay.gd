@@ -1,10 +1,9 @@
 extends CanvasLayer
 
 ## Title card shown before the walk starts. It also exists because browsers only
-## grant pointer lock (and start audio) after a real user gesture, so the game
-## must wait for one click.
+## grant pointer lock after a real user gesture, so the game must wait for one.
 
-signal started
+signal started(resume: bool)
 
 @export var player_path: NodePath = ^"../PlayerCat"
 @export var title := "黑猫旅程"
@@ -19,7 +18,7 @@ func _ready() -> void:
 		player.set_control_enabled(false)
 	# A headless run has no UI to click, so gameplay tests start immediately.
 	if DisplayServer.get_name() == "headless":
-		start()
+		begin(false)
 		return
 	_build()
 
@@ -40,7 +39,7 @@ func _build() -> void:
 
 	var box := VBoxContainer.new()
 	box.alignment = BoxContainer.ALIGNMENT_CENTER
-	box.add_theme_constant_override("separation", 20)
+	box.add_theme_constant_override("separation", 18)
 	center.add_child(box)
 
 	var heading := Label.new()
@@ -64,15 +63,27 @@ func _build() -> void:
 	hint.add_theme_color_override("font_color", Color(0.7, 0.72, 0.76))
 	box.add_child(hint)
 
-	var button := Button.new()
-	button.text = "开始旅程"
-	button.custom_minimum_size = Vector2(240, 62)
-	button.add_theme_font_size_override("font_size", 22)
-	button.pressed.connect(start)
-	box.add_child(button)
-	button.grab_focus()
+	var resume_button := Button.new()
+	resume_button.text = "继续旅程"
+	resume_button.custom_minimum_size = Vector2(240, 58)
+	resume_button.add_theme_font_size_override("font_size", 22)
+	resume_button.pressed.connect(func() -> void: begin(true))
+	resume_button.visible = JourneySave.exists()
+	box.add_child(resume_button)
 
-func start() -> void:
+	var button := Button.new()
+	button.text = "开始旅程" if not JourneySave.exists() else "重新开始"
+	button.custom_minimum_size = Vector2(240, 58)
+	button.add_theme_font_size_override("font_size", 22)
+	button.pressed.connect(func() -> void: begin(false))
+	box.add_child(button)
+
+	if JourneySave.exists():
+		resume_button.grab_focus()
+	else:
+		button.grab_focus()
+
+func begin(resume: bool) -> void:
 	if _started:
 		return
 	_started = true
@@ -84,4 +95,4 @@ func start() -> void:
 	var player := get_node_or_null(player_path)
 	if player != null and player.has_method("set_control_enabled"):
 		player.set_control_enabled(true)
-	started.emit()
+	started.emit(resume)
