@@ -5,7 +5,7 @@ extends Node3D
 ## scattered as MultiMeshes.
 
 @export var use_terrain3d := true
-@export var use_nature_models := false
+@export var use_nature_models := true
 @export var terrain_width := 170.0
 @export var terrain_length := 560.0
 @export var columns := 64
@@ -162,13 +162,10 @@ func _scatter_nature() -> void:
 	if not use_nature_models:
 		_scatter_primitives()
 		return
-	_scatter(["Bush1", "Bush2", "Bush3"], 2400, 20.0, -530.0, 26.0, 0.38, Color(0.26, 0.40, 0.24))
-	_scatter(["Rock1", "Rock2", "Rock3"], 220, 10.0, -530.0, 34.0, 1.1, Color(0.42, 0.40, 0.37))
-	_scatter(["Tree1", "Tree2", "Tree3", "Tree4"], 130, 10.0, -530.0, 46.0, 4.5, Color(0.20, 0.30, 0.22))
 	# Grass1-3 are flat ground cards, so the 3D bushes double as tufts.
-	_scatter(["Bush1", "Bush2", "Bush3"], 2400, 20.0, -530.0, 26.0, 0.38, Color(0.26, 0.40, 0.24))
-	_scatter(["Rock1", "Rock2", "Rock3"], 220, 10.0, -530.0, 34.0, 1.1, Color(0.42, 0.40, 0.37))
-	_scatter(["Tree1", "Tree2", "Tree3", "Tree4"], 130, 10.0, -530.0, 46.0, 4.5, Color(0.20, 0.30, 0.22))
+	_scatter(["Bush1", "Bush2", "Bush3"], 2600, 22.0, -530.0, 26.0, 0.45, Color(0.26, 0.40, 0.24))
+	_scatter(["Rock1", "Rock2", "Rock3"], 220, 10.0, -530.0, 34.0, 1.0, Color(0.42, 0.40, 0.37))
+	_scatter(["Tree1", "Tree2", "Tree3", "Tree4"], 130, 12.0, -530.0, 46.0, 4.5, Color(0.20, 0.30, 0.22))
 
 ## The FBX models carry their unit conversion on an ancestor node, so their mesh
 ## resources are ~100x too small. Measure the assembled world height once and
@@ -221,18 +218,20 @@ func _scatter(names: Array, count: int, z_near: float, z_far: float, spread: flo
 		if packed == null:
 			continue
 		var probe := packed.instantiate()
-		add_child(probe)
 		var mesh := _find_mesh(probe)
 		if mesh == null or mesh.mesh == null:
-			probe.queue_free()
+			probe.free()
 			continue
-		var world_aabb: AABB = mesh.global_transform * mesh.get_aabb()
-		var base_scale := target_height / maxf(world_aabb.size.y, 0.001)
-		remove_child(probe)
-		probe.queue_free()
+		# The FBX carries its unit conversion on an ancestor node that we drop when
+		# taking only the mesh, so normalise against the RAW mesh height. Keep a
+		# reference to the resource before the probe is freed.
+		var mesh_resource: Mesh = mesh.mesh
+		var raw_height := mesh_resource.get_aabb().size.y
+		var base_scale := target_height / maxf(raw_height, 0.0001)
+		probe.free()
 		var multimesh := MultiMesh.new()
 		multimesh.transform_format = MultiMesh.TRANSFORM_3D
-		multimesh.mesh = mesh.mesh
+		multimesh.mesh = mesh_resource
 		multimesh.instance_count = per_model
 		var placed := 0
 		for index in per_model:
@@ -255,7 +254,6 @@ func _scatter(names: Array, count: int, z_near: float, z_far: float, spread: flo
 		node.multimesh = multimesh
 		node.material_override = material
 		add_child(node)
-		probe.free()
 
 func _find_mesh(node: Node) -> MeshInstance3D:
 	if node is MeshInstance3D:

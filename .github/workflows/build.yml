@@ -38,14 +38,19 @@ jobs:
       - name: Import project
         run: '"$GODOT_BIN" --headless --path game --import'
 
+      - name: Install xvfb
+        run: sudo apt-get update && sudo apt-get install -y xvfb
+
+      # GDExtension libraries are only packed when the extension is loaded in a
+      # real display server, so export under xvfb instead of --headless.
       - name: Export desktops
         run: |
           set -euo pipefail
           mkdir -p build/linux build/windows build/macos
-          "$GODOT_BIN" --headless --path game --export-release "Linux" "$PWD/build/linux/black-cat-journey.x86_64"
-          "$GODOT_BIN" --headless --path game --export-release "Windows" "$PWD/build/windows/black-cat-journey.exe"
+          xvfb-run -a "$GODOT_BIN" --path game --export-release "Linux" "$PWD/build/linux/black-cat-journey.x86_64"
+          xvfb-run -a "$GODOT_BIN" --path game --export-release "Windows" "$PWD/build/windows/black-cat-journey.exe"
           # Unsigned: Gatekeeper will still warn on first open.
-          "$GODOT_BIN" --headless --path game --export-release "macOS" "$PWD/build/macos/BlackCatJourney.zip"
+          xvfb-run -a "$GODOT_BIN" --path game --export-release "macOS" "$PWD/build/macos/BlackCatJourney.zip"
 
       - uses: actions/upload-artifact@v4
         with: { name: black-cat-journey-linux-x86_64, path: build/linux/ }
@@ -112,12 +117,16 @@ jobs:
       - name: Import project
         run: '"$GODOT_BIN" --headless --path game --import'
 
+      - name: Install xvfb
+        run: sudo apt-get update && sudo apt-get install -y xvfb
+
       - name: Export APK
         run: |
           set -euo pipefail
           mkdir -p build/android
-          "$GODOT_BIN" --headless --verbose --path game --export-debug "Android" "$PWD/build/android/black-cat-journey.apk"
+          xvfb-run -a "$GODOT_BIN" --path game --export-debug "Android" "$PWD/build/android/black-cat-journey.apk"
           ls -la build/android
+          unzip -l build/android/black-cat-journey.apk | grep -i terrain || echo "WARNING: no terrain libs in APK"
 
       - uses: actions/upload-artifact@v4
         with: { name: black-cat-journey-android-apk, path: build/android/ }
