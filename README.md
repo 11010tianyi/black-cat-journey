@@ -27,6 +27,8 @@
 
 用 Godot 4.6+ 打开 `game/` 目录即可运行。
 
+插件、原生库与各平台导出说明见 [docs/PLUGINS.md](docs/PLUGINS.md)。
+
 ## 许可
 
 MIT
